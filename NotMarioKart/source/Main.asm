@@ -10,42 +10,44 @@ DTFLAGS = 25h  ; Needed for drawtext
 ;==================== DATA =======================
 .data
 
-AppLoadMsgTitle BYTE "Application Loaded",0
-AppLoadMsgText  BYTE "This window displays when the WM_CREATE "
-	            BYTE "message is received",0
+	AppLoadMsgTitle BYTE "Application Loaded",0
+	AppLoadMsgText  BYTE "This window displays when the WM_CREATE "
+								BYTE "message is received",0
 
-PopupTitle BYTE "Popup Window",0
-PopupText  BYTE "This window was activated by a "
-	       BYTE "WM_LBUTTONDOWN message",0
+	PopupTitle BYTE "Popup Window",0
+	PopupText  BYTE "This window was activated by a "
+					BYTE "WM_LBUTTONDOWN message",0
 
-GreetTitle BYTE "Main Window Active",0
-GreetText  BYTE "This window is shown immediately after "
-	       BYTE "CreateWindow and UpdateWindow are called.",0
+	GreetTitle BYTE "Main Window Active",0
+	GreetText  BYTE "This window is shown immediately after "
+					BYTE "CreateWindow and UpdateWindow are called.",0
 
-CloseMsg   BYTE "WM_CLOSE message received",0
+	CloseMsg   BYTE "WM_CLOSE message received",0
+	leftleft BYTE "left <.<",0
+	rightright BYTE "right >.>",0
 
-HelloStr   BYTE "Hello World",0
-rc RECT <0,0,200,200>
-ps PAINTSTRUCT <?>
-hdc DWORD ?
+	HelloStr   BYTE "Hello World",0
+	rc RECT <0,0,200,200>
+	ps PAINTSTRUCT <?>
+	hdc DWORD ?
 
-ErrorTitle  BYTE "Error",0
-WindowName  BYTE "ASM Windows App",0
-className   BYTE "ASMWin",0
+	ErrorTitle  BYTE "Error",0
+	WindowName  BYTE "ASM Windows App",0
+	className   BYTE "ASMWin",0
 
-msg	     MSGStruct <>
-winRect   RECT <>
-hMainWnd  DWORD ?
-hInstance DWORD ?
+	msg	     MSGStruct <>
+	winRect   RECT <>
+	hMainWnd  DWORD ?
+	hInstance DWORD ?
 
-xloc SDWORD 50   ; x location of the box
-yloc SDWORD 50   ; y location of the box
-xdir SDWORD 3    ; direction of box in x
-ydir SDWORD 5    ; direction of box in y
+	xloc SDWORD 50   ; x location of the box
+	yloc SDWORD 50   ; y location of the box
+	xdir SDWORD 3    ; direction of box in x
+	ydir SDWORD 5    ; direction of box in y
 
-; Define the Application's Window class structure.
-MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
-	COLOR_WINDOW,NULL,className>
+	; Define the Application's Window class structure.
+	MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
+		COLOR_WINDOW,NULL,className>
 
 
 
@@ -128,12 +130,27 @@ WinProc PROC,
 	  INVOKE MessageBox, hWnd, ADDR PopupText,
 	    ADDR PopupTitle, MB_OK
 	  jmp WinProcExit
+	.ENDIF
 	; GET KEYBOARD INPUT HERE ???
-	.ELSEIF eax == WM_CREATE		; create window?
-	  INVOKE MessageBox, hWnd, ADDR AppLoadMsgText,
-	    ADDR AppLoadMsgTitle, MB_OK
-	  jmp WinProcExit
-	.ELSEIF eax == WM_CLOSE		; close window?
+	.IF eax == WM_KEYDOWN
+		.IF wParam == VK_LEFT
+			; GO LEFT
+			INVOKE MessageBox, hWnd, ADDR leftleft,
+	    	ADDR leftleft, MB_OK
+	  	jmp WinProcExit
+		.ENDIF
+		.IF wParam == VK_RIGHT
+			; GO RIGHT
+			INVOKE MessageBox, hWnd, ADDR rightright,
+	    	ADDR rightright, MB_OK
+	  	jmp WinProcExit
+		.ENDIF
+	.ENDIF
+	; .ELSEIF eax == WM_CREATE		; create window?
+	;   INVOKE MessageBox, hWnd, ADDR AppLoadMsgText,
+	;     ADDR AppLoadMsgTitle, MB_OK
+	;   jmp WinProcExit
+	.IF eax == WM_CLOSE		; close window?
 	  INVOKE MessageBox, hWnd, ADDR CloseMsg,
 	    ADDR WindowName, MB_OK
 	  INVOKE PostQuitMessage,0
@@ -141,7 +158,10 @@ WinProc PROC,
 	.ELSEIF eax == WM_TIMER     ; did a timer fire?
 	  INVOKE InvalidateRect, hWnd, 0, 1
 	  jmp WinProcExit
-	.ELSEIF eax == WM_PAINT		; window needs redrawing? 
+	.ENDIF
+
+
+	.IF eax == WM_PAINT		; window needs redrawing? 
 	  INVOKE BeginPaint, hWnd, ADDR ps 
 	  mov hdc, eax
 
@@ -171,36 +191,36 @@ WinProc PROC,
 	  INVOKE LineTo, hdc, xloc,   yloc
 
 		; we're not reflecting
-			; ; reflect xdir
-			; ; Bug in assembler can't use .IF here for some reason...
-			; cmp xloc, 200
-			; jl L1
-			;    mov eax, 0
-			;    sub eax, xdir
-			;    mov xdir, eax
-			; L1:
+			; reflect xdir
+			; Bug in assembler can't use .IF here for some reason...
+			cmp xloc, 700
+			jl L1
+			   mov eax, 0
+			   sub eax, xdir
+			   mov xdir, eax
+			L1:
 
-			; cmp xloc, 0
-			; jg L2
-			;    mov eax, 0
-			;    sub eax, xdir
-			;    mov xdir, eax
-			; L2:
+			cmp xloc, 0
+			jg L2
+			   mov eax, 0
+			   sub eax, xdir
+			   mov xdir, eax
+			L2:
 
-			; ; reflect ydir
-			; cmp yloc, 200
-			; jl L3
-			;    mov eax, 0
-			;    sub eax, ydir
-			;    mov ydir, eax
-			; L3:
+			; reflect ydir
+			cmp yloc, 700
+			jl L3
+			   mov eax, 0
+			   sub eax, ydir
+			   mov ydir, eax
+			L3:
 
-			; cmp yloc, 0
-			; jg L4
-			;    mov eax, 0
-			;    sub eax, ydir
-			;    mov ydir, eax
-			; L4:
+			cmp yloc, 0
+			jg L4
+			   mov eax, 0
+			   sub eax, ydir
+			   mov ydir, eax
+			L4:
 
 	  ; output text
 	  INVOKE DrawTextA, hdc, ADDR HelloStr, -1, ADDR rc, DTFLAGS 
@@ -215,29 +235,32 @@ WinProcExit:
 	ret
 WinProc ENDP
 
+
 ;---------------------------------------------------
 ErrorHandler PROC
 ; Display the appropriate system error message.
 ;---------------------------------------------------
-.data
-pErrorMsg  DWORD ?		; ptr to error message
-messageID  DWORD ?
-.code
-	INVOKE GetLastError	; Returns message ID in EAX
-	mov messageID,eax
+	.data
+	pErrorMsg  DWORD ?		; ptr to error message
+	messageID  DWORD ?
+	.code
+		INVOKE GetLastError	; Returns message ID in EAX
+		mov messageID,eax
 
-	; Get the corresponding message string.
-	INVOKE FormatMessage, FORMAT_MESSAGE_ALLOCATE_BUFFER + \
-	  FORMAT_MESSAGE_FROM_SYSTEM,NULL,messageID,NULL,
-	  ADDR pErrorMsg,NULL,NULL
+		; Get the corresponding message string.
+		INVOKE FormatMessage, FORMAT_MESSAGE_ALLOCATE_BUFFER + \
+			FORMAT_MESSAGE_FROM_SYSTEM,NULL,messageID,NULL,
+			ADDR pErrorMsg,NULL,NULL
 
-	; Display the error message.
-	INVOKE MessageBox,NULL, pErrorMsg, ADDR ErrorTitle,
-	  MB_ICONERROR+MB_OK
+		; Display the error message.
+		INVOKE MessageBox,NULL, pErrorMsg, ADDR ErrorTitle,
+			MB_ICONERROR+MB_OK
 
-	; Free the error message string.
-	INVOKE LocalFree, pErrorMsg
-	ret
+		; Free the error message string.
+		INVOKE LocalFree, pErrorMsg
+		ret
 ErrorHandler ENDP
+
+
 
 END
