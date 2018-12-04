@@ -114,7 +114,7 @@ Message_Loop:
     jmp Message_Loop
 
 Exit_Program:
-	  INVOKE ExitProcess,0
+	INVOKE ExitProcess,0
 main ENDP
 
 ;-----------------------------------------------------
@@ -127,9 +127,9 @@ WinProc PROC,
 ;-----------------------------------------------------
 	mov eax, localMsg
 	.IF eax == WM_LBUTTONDOWN		; mouse button?
-	  INVOKE MessageBox, hWnd, ADDR PopupText,
-	    ADDR PopupTitle, MB_OK
-	  jmp WinProcExit
+		;   INVOKE MessageBox, hWnd, ADDR PopupText,
+		;     ADDR PopupTitle, MB_OK
+		;   jmp WinProcExit
 	.ENDIF
 	; GET KEYBOARD INPUT HERE
 	.IF eax == WM_KEYDOWN
@@ -137,18 +137,17 @@ WinProc PROC,
 			; GO LEFT
 			; inc x position of the box
 			mov ebx, xloc         
-			add ebx, -20
+			add ebx, -10
 			mov xloc, ebx
 	  	jmp WinProcExit
 		.ENDIF
 		.IF wParam == VK_RIGHT
 			; GO RIGHT
 			mov ebx, xloc         
-			add ebx, 20
+			add ebx, 10
 			mov xloc, ebx
 	  	jmp WinProcExit
 		.ENDIF
-
 		.IF wParam == VK_UP
 			;GO UP, inc y position of the box
 			mov ecx, yloc
@@ -156,7 +155,6 @@ WinProc PROC,
 	  		mov yloc, ecx
 		jmp WinProcExit
 		.ENDIF
-
 		.IF wParam == VK_DOWN
 			;GO DOWN
 			mov ecx, yloc
@@ -164,60 +162,62 @@ WinProc PROC,
 	  		mov yloc, ecx
 	  	jmp WinProcExit
 		.ENDIF
-
 	.ENDIF
+
 	.IF eax == WM_CLOSE		; close window?
-	  INVOKE MessageBox, hWnd, ADDR CloseMsg,
-	    ADDR WindowName, MB_OK
-	  INVOKE PostQuitMessage,0
-	  jmp WinProcExit
+	  	INVOKE MessageBox, hWnd, ADDR CloseMsg,
+	    	ADDR WindowName, MB_OK
+	  	INVOKE PostQuitMessage,0
+	  	jmp WinProcExit
 	.ELSEIF eax == WM_TIMER     ; did a timer fire?
-	  INVOKE InvalidateRect, hWnd, 0, 1
-	  jmp WinProcExit
+	  	INVOKE InvalidateRect, hWnd, 0, 1
+	  	jmp WinProcExit
 	.ENDIF
 
 
 	.IF eax == WM_PAINT		; window needs redrawing? 
 		INVOKE BeginPaint, hWnd, ADDR ps  
-	  mov hdc, eax
-	
-	  
+	  	mov hdc, eax
 
+		; draw tracks
+		INVOKE MoveToEx, hdc, 100, 0, 0
+		INVOKE LineTo, hdc, 100, 9999
 
-	  
-	  ; draw the box
-	  INVOKE MoveToEx, hdc, xloc, yloc, 0
-	  mov ebx, xloc
-	  add ebx, 50
-	  INVOKE LineTo, hdc, ebx, yloc
-	  mov ebx, xloc
-	  add ebx, 50
-	  mov ecx, yloc
-	  add ecx, 50	  	  
-	  INVOKE LineTo, hdc, ebx, ecx
-	  mov ecx, yloc
-	  add ecx, 50
-	  INVOKE LineTo, hdc, xloc,   ecx
-	  INVOKE LineTo, hdc, xloc,   yloc
+		INVOKE MoveToEx, hdc, 700, 0, 0
+		INVOKE LineTo, hdc, 700, 9999
 
-		; we're not reflecting
+	  	; draw the box
+	  	INVOKE MoveToEx, hdc, xloc, yloc, 0
+	  	mov ebx, xloc
+	  	add ebx, 50
+	  	INVOKE LineTo, hdc, ebx, yloc
+	  	mov ebx, xloc
+	  	add ebx, 50
+	  	mov ecx, yloc
+	  	add ecx, 50	  	  
+	  	INVOKE LineTo, hdc, ebx, ecx
+	  	mov ecx, yloc
+	  	add ecx, 50
+	  	INVOKE LineTo, hdc, xloc,   ecx
+	  	INVOKE LineTo, hdc, xloc,   yloc
+
+		; x limits
 			; reflect xdir
 			; Bug in assembler can't use .IF here for some reason...
 			cmp xloc, 700
 			jl L1
-			   mov eax, 0
-			   sub eax, xdir
-			   mov xdir, eax
+			   mov eax, 700
+			   sub eax, 50
+			   mov xloc, eax
 			L1:
 
-			cmp xloc, 0
+			cmp xloc, 100
 			jg L2
-			   mov eax, 0
-			   sub eax, xdir
-			   mov xdir, eax
+			   mov eax,100
+			   mov xloc, eax
 			L2:
 
-			; reflect ydir
+			; reflect ydir    vjhyfguofgvikb
 			cmp yloc, 700
 			jl L3
 			   mov eax, 0
@@ -232,13 +232,13 @@ WinProc PROC,
 			   mov ydir, eax
 			L4:
 
-	  ; output text
-	  INVOKE DrawTextA, hdc, ADDR HelloStr, -1, ADDR rc, DTFLAGS 
-	  INVOKE EndPaint, hWnd, ADDR ps
-	  jmp WinProcExit
+	  	; ; output text
+	  	; INVOKE DrawTextA, hdc, ADDR HelloStr, -1, ADDR rc, DTFLAGS 
+	  	; INVOKE EndPaint, hWnd, ADDR ps
+	  	; jmp WinProcExit
 	.ELSE		; other message?
-	  INVOKE DefWindowProc, hWnd, localMsg, wParam, lParam
-	  jmp WinProcExit
+	  	INVOKE DefWindowProc, hWnd, localMsg, wParam, lParam
+	  	jmp WinProcExit
 	.ENDIF
 
 WinProcExit:
