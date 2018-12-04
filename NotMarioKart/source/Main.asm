@@ -135,21 +135,20 @@ WinProc PROC,
 	.IF eax == WM_KEYDOWN
 		.IF wParam == VK_LEFT
 			; GO LEFT
-			INVOKE MessageBox, hWnd, ADDR leftleft,
-	    	ADDR leftleft, MB_OK
+			; inc x position of the box
+			mov ebx, xloc         
+			add ebx, -20
+			mov xloc, ebx
 	  	jmp WinProcExit
 		.ENDIF
 		.IF wParam == VK_RIGHT
 			; GO RIGHT
-			INVOKE MessageBox, hWnd, ADDR rightright,
-	    	ADDR rightright, MB_OK
+			mov ebx, xloc         
+			add ebx, 20
+			mov xloc, ebx
 	  	jmp WinProcExit
 		.ENDIF
 	.ENDIF
-	; .ELSEIF eax == WM_CREATE		; create window?
-	;   INVOKE MessageBox, hWnd, ADDR AppLoadMsgText,
-	;     ADDR AppLoadMsgTitle, MB_OK
-	;   jmp WinProcExit
 	.IF eax == WM_CLOSE		; close window?
 	  INVOKE MessageBox, hWnd, ADDR CloseMsg,
 	    ADDR WindowName, MB_OK
@@ -162,18 +161,15 @@ WinProc PROC,
 
 
 	.IF eax == WM_PAINT		; window needs redrawing? 
-	  INVOKE BeginPaint, hWnd, ADDR ps 
+		INVOKE BeginPaint, hWnd, ADDR ps  
 	  mov hdc, eax
+	
+	  
 
-	  ; inc x position of the box
-	  mov ebx, xloc         
-	  add ebx, xdir
-	  mov xloc, ebx
-
-	  ; inc y position of the box
-	  mov ecx, yloc
-	  add ecx, ydir
-	  mov yloc, ecx
+	;   ; inc y position of the box
+	;   mov ecx, yloc
+	;   add ecx, ydir
+	;   mov yloc, ecx
 	  
 	  ; draw the box
 	  INVOKE MoveToEx, hdc, xloc, yloc, 0
