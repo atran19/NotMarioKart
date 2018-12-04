@@ -131,7 +131,7 @@ WinProc PROC,
 	    ADDR PopupTitle, MB_OK
 	  jmp WinProcExit
 	.ENDIF
-	; GET KEYBOARD INPUT HERE ???
+	; GET KEYBOARD INPUT HERE
 	.IF eax == WM_KEYDOWN
 		.IF wParam == VK_LEFT
 			; GO LEFT
@@ -148,6 +148,23 @@ WinProc PROC,
 			mov xloc, ebx
 	  	jmp WinProcExit
 		.ENDIF
+
+		.IF wParam == VK_UP
+			;GO UP, inc y position of the box
+			mov ecx, yloc
+	  		add ecx, -20
+	  		mov yloc, ecx
+		jmp WinProcExit
+		.ENDIF
+
+		.IF wParam == VK_DOWN
+			;GO DOWN
+			mov ecx, yloc
+	  		add ecx, 20
+	  		mov yloc, ecx
+	  	jmp WinProcExit
+		.ENDIF
+
 	.ENDIF
 	.IF eax == WM_CLOSE		; close window?
 	  INVOKE MessageBox, hWnd, ADDR CloseMsg,
@@ -166,10 +183,7 @@ WinProc PROC,
 	
 	  
 
-	;   ; inc y position of the box
-	;   mov ecx, yloc
-	;   add ecx, ydir
-	;   mov yloc, ecx
+
 	  
 	  ; draw the box
 	  INVOKE MoveToEx, hdc, xloc, yloc, 0
