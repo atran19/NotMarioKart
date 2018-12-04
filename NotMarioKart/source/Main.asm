@@ -4,6 +4,7 @@ TITLE Not Mario Kart
 
 INCLUDE Irvine32.inc
 INCLUDE GraphWin.inc
+INCLUDELIB User32.lib
 
 DTFLAGS = 25h  ; Needed for drawtext
 
@@ -45,10 +46,15 @@ DTFLAGS = 25h  ; Needed for drawtext
 	xdir SDWORD 3    ; direction of box in x
 	ydir SDWORD 5    ; direction of box in y
 
+	ImageName db "spaceship.bmp",0 ;"C:\masm32\BIN\louis.bmp" 
+	; http://www.asmcommunity.net/forums/topic/?id=11141
+
 	; Define the Application's Window class structure.
 	MainWin WNDCLASS <NULL,WinProc,NULL,NULL,NULL,NULL,NULL, \
 		COLOR_WINDOW,NULL,className>
 
+.data?
+	hBitmap dd ?
 
 
 ;=================== CODE =========================
@@ -125,11 +131,16 @@ WinProc PROC,
 ; are forwarded to the default Windows message
 ; handler.
 ;-----------------------------------------------------
+	LOCAL hMemDC:DWORD 
+	
 	mov eax, localMsg
 	.IF eax == WM_LBUTTONDOWN		; mouse button?
 		;   INVOKE MessageBox, hWnd, ADDR PopupText,
 		;     ADDR PopupTitle, MB_OK
 		;   jmp WinProcExit
+		invoke LoadImage, hInstance,ADDR ImageName,0,100,100,LR_LOADFROMFILE  ;https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-loadimagea
+		mov hBitmap,eax 
+		invoke InvalidateRect,hWnd,NULL,TRUE 
 	.ENDIF
 	; GET KEYBOARD INPUT HERE
 	.IF eax == WM_KEYDOWN
@@ -180,11 +191,20 @@ WinProc PROC,
 	  	mov hdc, eax
 
 		; draw tracks
-		INVOKE MoveToEx, hdc, 100, 0, 0
-		INVOKE LineTo, hdc, 100, 9999
+			INVOKE MoveToEx, hdc, 100, 0, 0
+			INVOKE LineTo, hdc, 100, 9999
 
-		INVOKE MoveToEx, hdc, 700, 0, 0
-		INVOKE LineTo, hdc, 700, 9999
+			INVOKE MoveToEx, hdc, 700, 0, 0
+			INVOKE LineTo, hdc, 700, 9999
+
+		;spc
+		mov hdc, eax 
+		invoke CreateCompatibleDC,hdc 
+		mov hMemDC,eax 
+		invoke SelectObject, hMemDC,hBitmap 
+		invoke GetClientRect,hWnd,addr rc
+		invoke BitBlt,hdc,0,0,rect.right,rect.bottom,hMemDC,0,0,SRCCOPY 
+		invoke DeleteDC,hMemDC 
 
 	  	; draw the box
 	  	INVOKE MoveToEx, hdc, xloc, yloc, 0

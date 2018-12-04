@@ -55,6 +55,38 @@ PAINTSTRUCT ENDS
 
 ;-------------- Function Prototypes ------------------------
 
+;Image PROTO,
+UINT TYPEDEF DWORD
+LoadImage PROTO,
+	hInst:DWORD,
+	iname:DWORD,
+	itype:UINT,
+	icx:DWORD,
+	icy:DWORD,
+	fuload:UINT
+CreateCompatibleDC PROTO,
+	hdc:DWORD
+SelectObject PROTO,
+	hMemDC:DWORD,
+	hBitmap:DWORD
+GetClientRect PROTO,
+	hWnd:DWORD,
+	lprect:DWORD
+BitBlt PROTO,
+	hdc:DWORD,
+	x:DWORD,
+	y:DWORD,
+	bbcx:DWORD,
+	bbcy:DWORD,
+	hMemDC:DWORD,
+	x1:DWORD,
+	y1:DWORD,
+	rop:DWORD
+DeleteDC PROTO,
+	hMemDC:DWORD
+	
+
+
 BeginPaint PROTO,       ; Begin Painting in a window
     hWnd:DWORD,
     lpPaintStruct:DWORD
@@ -191,6 +223,9 @@ WS_MINIMIZEBOX      =     00020000h
 WS_THICKFRAME       =     00040000h
 WS_CAPTION          =     WS_BORDER+WS_DLGFRAME
 WS_VISIBLE          =     10000000h
+
+LR_LOADFROMFILE		=	  00000010h
+SRCCOPY				=	  13369376d
 
 ; Window show constants
 SW_SHOW             =     05h
