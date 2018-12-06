@@ -57,7 +57,7 @@ PAINTSTRUCT ENDS
 
 ;Image PROTO,
 UINT TYPEDEF DWORD
-LoadImage PROTO,
+LoadImageA PROTO,
 	hInst:DWORD,
 	iname:DWORD,
 	itype:UINT,
@@ -66,6 +66,10 @@ LoadImage PROTO,
 	fuload:UINT
 CreateCompatibleDC PROTO,
 	hdc:DWORD
+CreateCompatibleBitmap PROTO,
+	hdc:DWORD,
+	cbmx:DWORD,
+	cbmy:DWORD
 SelectObject PROTO,
 	hMemDC:DWORD,
 	hBitmap:DWORD

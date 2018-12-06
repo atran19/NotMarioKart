@@ -138,7 +138,7 @@ WinProc PROC,
 		;   INVOKE MessageBox, hWnd, ADDR PopupText,
 		;     ADDR PopupTitle, MB_OK
 		;   jmp WinProcExit
-		invoke LoadImage, hInstance,ADDR ImageName,0,100,100,LR_LOADFROMFILE  ;https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-loadimagea
+		invoke LoadImageA, hInstance,ADDR ImageName,0,100,100,LR_LOADFROMFILE  ;https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-loadimagea
 		mov hBitmap,eax 
 		invoke InvalidateRect,hWnd,NULL,TRUE 
 	.ENDIF
@@ -199,12 +199,32 @@ WinProc PROC,
 
 		;spc
 		mov hdc, eax 
-		invoke CreateCompatibleDC,hdc 
+		INVOKE MoveToEx, hdc, xloc, yloc, 0
+		invoke CreateCompatibleDC,hMemDC 
+		;invoke CreateCompatibleBitmap, hdc, 0, 0
 		mov hMemDC,eax 
 		invoke SelectObject, hMemDC,hBitmap 
 		invoke GetClientRect,hWnd,addr rc
-		invoke BitBlt,hdc,0,0,rect.right,rect.bottom,hMemDC,0,0,SRCCOPY 
+		invoke BitBlt,hMemDC,0,0,rect.right,rect.bottom,hMemDC,0,0,SRCCOPY 
 		invoke DeleteDC,hMemDC 
+
+						
+						; invoke UpdateWindow,hWnd  ;to redraw the screen 
+						; invoke UpdateWindow,hWnd  ;to redraw the screen
+						; invoke UpdateWindow,hWnd  ;to redraw the screen 
+						
+						; ;invoke GetWindowDC,hWndBitmap
+						; invoke GetDC,hWndBitmap
+						; mov    hdc, eax
+						; invoke GetWindowRect,hWndBitmap,addr rect
+						; invoke CreateCompatibleDC,hdc 
+						; mov    hMemDC,eax
+						; invoke CreateCompatibleBitmap,hdc,100,100
+						; mov	   hBmpBack, eax
+						; invoke SelectObject,hMemDC,hBmpBack
+						; mov	   hSavedOld, eax
+						; invoke BitBlt,hMemDC,0,0,100,100,hdc,0,0,SRCCOPY
+						; invoke SelectObject,hMemDC,hSavedOld
 
 	  	; draw the box
 	  	INVOKE MoveToEx, hdc, xloc, yloc, 0
